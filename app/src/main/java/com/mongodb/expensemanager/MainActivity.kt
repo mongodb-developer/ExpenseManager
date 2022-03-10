@@ -127,7 +127,7 @@ class MainActivity : ComponentActivity() {
     fun addNewDialog(isDialogOpen: MutableState<Boolean>, viewModel: MainViewModel) {
 
         val expenseDesc = remember { mutableStateOf("") }
-        val expenseValue = remember { mutableStateOf(0) }
+        val expenseValue = remember { mutableStateOf("") }
 
         Dialog(
             properties = DialogProperties(),
@@ -148,7 +148,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxWidth()
                     )
 
-                    OutlinedTextField(
+                    TextField(
                         value = expenseDesc.value,
                         onValueChange = { expenseDesc.value = it },
                         label = { Text(text = "Expense Desc") },
@@ -158,11 +158,10 @@ class MainActivity : ComponentActivity() {
                             .align(Alignment.CenterHorizontally),
                     )
 
-                    OutlinedTextField(
-                        value = expenseValue.value.toString(),
+                    TextField(
+                        value = expenseValue.value,
                         onValueChange = {
-                            if (it.isNotBlank() && it.isDigitsOnly())
-                                expenseValue.value = it.toInt()
+                            expenseValue.value = it
                         },
                         label = { Text(text = "Expense Value") },
                         modifier = Modifier
@@ -180,19 +179,21 @@ class MainActivity : ComponentActivity() {
                     ) {
                         Button(onClick = {
                             expenseDesc.value = ""
-                            expenseValue.value = 0
+                            expenseValue.value = ""
                             isDialogOpen.value = false
                         }) {
                             Text(text = "Cancel")
                         }
 
                         Button(onClick = {
-                            viewModel.addExpense(
-                                name = expenseDesc.value,
-                                value = expenseValue.value
-                            )
+                            if (expenseValue.value.isDigitsOnly()) {
+                                viewModel.addExpense(
+                                    name = expenseDesc.value,
+                                    value = expenseValue.value.toInt()
+                                )
+                            }
                             expenseDesc.value = ""
-                            expenseValue.value = 0
+                            expenseValue.value = ""
                             isDialogOpen.value = false
                         }) {
                             Text(text = "Ok")
