@@ -127,7 +127,7 @@ class MainActivity : ComponentActivity() {
     fun addNewDialog(isDialogOpen: MutableState<Boolean>, viewModel: MainViewModel) {
 
         val expenseDesc = remember { mutableStateOf("") }
-        val expenseValue = remember { mutableStateOf(0) }
+        val expenseValue = remember { mutableStateOf("") }
 
         Dialog(
             properties = DialogProperties(),
@@ -161,8 +161,7 @@ class MainActivity : ComponentActivity() {
                     OutlinedTextField(
                         value = expenseValue.value.toString(),
                         onValueChange = {
-                            if (it.isNotBlank() && it.isDigitsOnly())
-                                expenseValue.value = it.toInt()
+                            expenseValue.value = it
                         },
                         label = { Text(text = "Expense Value") },
                         modifier = Modifier
@@ -186,13 +185,16 @@ class MainActivity : ComponentActivity() {
                         }
 
                         Button(onClick = {
-                            viewModel.addExpense(
-                                name = expenseDesc.value,
-                                value = expenseValue.value
-                            )
-                            expenseDesc.value = ""
-                            expenseValue.value = 0
-                            isDialogOpen.value = false
+                            if (expenseValue.value.isDigitsOnly()) {
+                                viewModel.addExpense(
+                                    name = expenseDesc.value,
+                                    value = expenseValue.value.toInt()
+                                )
+
+                                expenseDesc.value = ""
+                                expenseValue.value = ""
+                                isDialogOpen.value = false
+                            }
                         }) {
                             Text(text = "Ok")
                         }
