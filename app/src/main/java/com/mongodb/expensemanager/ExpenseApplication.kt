@@ -4,8 +4,6 @@ import android.app.Application
 import com.mongodb.expensemanager.di.koinModules
 import io.realm.Realm
 import io.realm.RealmConfiguration
-import io.realm.log.LogLevel
-import io.realm.log.RealmLog
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -22,7 +20,6 @@ class ExpenseApplication : Application() {
         val config = RealmConfiguration.Builder()
             .name("expenseDB.db")
             .schemaVersion(1)
-            .allowQueriesOnUiThread(true)
             .deleteRealmIfMigrationNeeded()
             .build()
 

@@ -2,26 +2,16 @@ package com.mongodb.expensemanager
 
 import androidx.lifecycle.*
 import io.realm.Realm
-import io.realm.RealmChangeListener
-import io.realm.RealmResults
 import io.realm.kotlin.toFlow
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
 
 class MainViewModel(private val realm: Realm) : ViewModel() {
 
-    private val _expenses = MutableLiveData<List<ExpenseInfo>>()
-    val expenses: LiveData<List<ExpenseInfo>> = _expenses
+    val expenses: LiveData<List<ExpenseInfo>> = getAllExpense().asLiveData()
 
-    val totalExpense: LiveData<Int> = Transformations.map(_expenses) {
-        it.sumOf { it.expenseValue }
-    }
-
-    init {
-        getAllExpense()
-        observeExpenseList()
-    }
+    val totalExpense: LiveData<Int> =
+        getAllExpense().map { it.sumOf { it.expenseValue } }.asLiveData()
 
     fun addExpense(value: Int, name: String) {
 
@@ -36,6 +26,7 @@ class MainViewModel(private val realm: Realm) : ViewModel() {
     }
 
     private fun getAllExpense(): Flow<List<ExpenseInfo>> {
+        // Copy to realm for issue with livedata
         return realm.where(ExpenseInfo::class.java).findAllAsync().toFlow()
     }
 
@@ -51,11 +42,10 @@ class MainViewModel(private val realm: Realm) : ViewModel() {
         }
     }
 
-    private fun observeExpenseList() {
-        val result = realm.where(ExpenseInfo::class.java).findAll()
-        result.addChangeListener(RealmChangeListener<RealmResults<ExpenseInfo>> {
-            _expenses.postValue(realm.copyFromRealm(it))
-        })
+    override fun onCleared() {
+        //TODO : Highlight this
+        super.onCleared()
+        realm.close()
     }
 
 }
