@@ -4,7 +4,9 @@ import androidx.lifecycle.*
 import io.realm.Realm
 import io.realm.RealmChangeListener
 import io.realm.RealmResults
+import io.realm.kotlin.toFlow
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class MainViewModel(private val realm: Realm) : ViewModel() {
@@ -33,11 +35,8 @@ class MainViewModel(private val realm: Realm) : ViewModel() {
         }
     }
 
-    private fun getAllExpense() {
-        realm.executeTransactionAsync {
-            val result = it.where(ExpenseInfo::class.java).findAll()
-            _expenses.postValue(it.copyFromRealm(result))
-        }
+    private fun getAllExpense(): Flow<List<ExpenseInfo>> {
+        return realm.where(ExpenseInfo::class.java).findAllAsync().toFlow()
     }
 
     fun removeExpense(expenseInfo: ExpenseInfo) {
