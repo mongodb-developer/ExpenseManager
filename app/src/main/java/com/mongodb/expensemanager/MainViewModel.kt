@@ -6,20 +6,17 @@ import io.realm.notifications.ResultsChange
 import io.realm.query
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class MainViewModel(private val realm: Realm) : ViewModel() {
 
-    val expenses: LiveData<List<ExpenseInfo>> = liveData {
-        getAllExpense()
-    }
+    val expenses: LiveData<List<ExpenseInfo>> = getAllExpense().map {
+        it.list
+    }.asLiveData()
 
     val totalExpense: LiveData<Int> = Transformations.map(expenses) {
         it.sumOf { it.expenseValue }
-    }
-
-    init {
-        getAllExpense()
     }
 
     fun addExpense(value: Int, name: String) {
