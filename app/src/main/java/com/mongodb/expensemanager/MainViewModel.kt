@@ -31,8 +31,8 @@ class MainViewModel(private val realm: Realm) : ViewModel() {
     }
 
     fun removeExpense(expenseInfo: ExpenseInfo) {
-        realm.executeTransactionAsync { realm ->
-            val result = realm.where(ExpenseInfo::class.java)
+        realm.executeTransactionAsync { bgRealm ->
+            val result = bgRealm.where(ExpenseInfo::class.java)
                 .equalTo("expenseId", expenseInfo.expenseId)
                 .findFirst()
 
